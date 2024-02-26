@@ -1,0 +1,15 @@
+{
+    "binance": {
+      "apiKey": "",
+      "apiSecret": "",
+      "proxy": ""
+    },
+    "backpack": {
+      "apiKey": "",
+      "apiSecret": "",
+      "proxy": ""
+    }
+
+}
+
+
