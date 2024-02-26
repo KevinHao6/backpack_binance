@@ -9,7 +9,7 @@ const { SocksProxyAgent } = require('socks-proxy-agent');
 const { HttpsProxyAgent }= require('https-proxy-agent');
 let agent;
 
-// http://lu5392194:Gl3fgO@156.242.110.157:7777
+
 if (binanceProxy.startsWith('socks5://')) {
     agent = new SocksProxyAgent(binanceProxy);
 } else if (binanceProxy.startsWith('http://') || binanceProxy.startsWith('https://')) {
