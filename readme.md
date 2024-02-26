@@ -9,7 +9,9 @@
 
 然后再去这个文件夹安装必要库
 `cd binance-futures-connector`
+
 `npm install @binance/futures-connector`
+
 返回上一层到backpack_binance-main
 `cd ..`
 
