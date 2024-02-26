@@ -7,6 +7,13 @@
 然后输入：
 `npm install`
 
+然后再去这个文件夹安装必要库
+`cd binance-futures-connector`
+`npm install @binance/futures-connector`
+返回上一层到backpack_binance-main
+`cd ..`
+
+
 #### 2、Backapack交易所和币安交易所的api设置
 拿到api key和 api secret key后在 config文件夹下的runner.json输入
 同时支持http和socks5的ip代理，直接输入就可以，
