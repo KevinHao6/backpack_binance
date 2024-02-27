@@ -23,7 +23,9 @@ ip格式：`http://${username}:${password}@${ip}:${port}`或者`socks5://${usern
 币安需要白名单,记得添加ip到百名单
 
 交易对默认是 SOL_USDC, SOLUSDC
+
 BACKPACK 交易对可选择 SOL_USDC, PYTH_USDC, JTO_USDC, JUP_USDC
+
 BINANCE  交易对可选择 SOLUSDC, PYTHUSDT, JTOUSDT, JUPUSDT
 #### 3、改等待时间
 main.js 里84行`await delay(10000);`, 决定了持仓时间，默认10秒只是为了测试，建议先自己测试一下然后调高点来防女巫，也可以吃空单的资金费率来拉低点成本
