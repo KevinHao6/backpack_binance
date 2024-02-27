@@ -76,15 +76,14 @@ const getorderbook = async (client) => {
 
 
 async function init(client) {
-    // let userbalance = await client.Balance();
-    // if (userbalance.USDC.available > 5) {
-    //     await buy_bp(client);
+    let userbalance = await client.Balance();
+    if (userbalance.USDC.available > 5) {
+        await buy_bp(client);
 
-    //     console.log("等待10s");        
-    //     await delay(10000);
-    //     await sell_bp(client);
-    // }
-    await sell_bp(client);
+        console.log("等待10s");        
+        await delay(10000);
+        await sell_bp(client);
+    }
 }
 
 //当前年份日期时分秒
