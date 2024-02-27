@@ -9,6 +9,25 @@ const backpack_client_1 = require("./backpack_client");
 const { sell_bn } = require('./binance_connector.js');
 const { buy_bn } = require('./binance_connector.js');
 
+// Define constants for trading pairs
+const BACKPACK_TRADING_PAIR = config.tradingPairs.backpack;
+const BINANCE_TRADING_PAIR = config.tradingPairs.binance;
+
+let ROUND_BN;
+let ROUND_BP;
+const SYMBOL = BACKPACK_TRADING_PAIR.split("_")[0];
+
+
+//quantity round
+if (BACKPACK_TRADING_PAIR === "SOL_USDC") {
+    ROUND_BN=2;
+    ROUND_BP=2;
+}else if (BACKPACK_TRADING_PAIR === "PYTH_USDC" || BACKPACK_TRADING_PAIR === "JTO_USDC" || BACKPACK_TRADING_PAIR === "JUP_USDC"){
+    ROUND_BN=0;
+    ROUND_BP=1;
+}
+
+
 
 function delay(ms) {
     return new Promise(resolve => {
@@ -41,13 +60,13 @@ function findBestPrices(orderbook) {
 }
 
 const getorderbook = async (client) => {
-    let orderbook = await client.Depth({ symbol: "SOL_USDC" });
+    let orderbook = await client.Depth({ symbol: BACKPACK_TRADING_PAIR });
     // console.log(orderbook);
 
     // 这里调用findBestPrices函数来获取最佳价格
     const bestPrices = findBestPrices(orderbook);
 
-    // console.log(`最低卖单价格: ${bestPrices.lowestAskPrice}, 最高买单价格: ${bestPrices.highestBidPrice}`);
+    console.log(`最低卖单价格: ${bestPrices.lowestAskPrice}, 最高买单价格: ${bestPrices.highestBidPrice}`);
 
     // 返回最佳价格
     return bestPrices;
@@ -57,15 +76,15 @@ const getorderbook = async (client) => {
 
 
 async function init(client) {
-    let userbalance = await client.Balance();
-    if (userbalance.USDC.available > 5) {
-        await buy_bp(client);
+    // let userbalance = await client.Balance();
+    // if (userbalance.USDC.available > 5) {
+    //     await buy_bp(client);
 
-        console.log("等待10s");        
-        await delay(10000);
-        await sell_bp(client);
-    }
-
+    //     console.log("等待10s");        
+    //     await delay(10000);
+    //     await sell_bp(client);
+    // }
+    await sell_bp(client);
 }
 
 //当前年份日期时分秒
@@ -98,13 +117,16 @@ function getNowFormatDate() {
         + seperator2 + strSecond;
     return currentdate;
 }
-
+function truncate(number, decimalPlaces) {
+    const factor = Math.pow(10, decimalPlaces);
+    return Math.floor(number * factor) / factor;
+}
 
 const buy_bp = async (client) => {
     //取消所有未完成订单
-    let GetOpenOrders = await client.GetOpenOrders({ symbol: "SOL_USDC" });
+    let GetOpenOrders = await client.GetOpenOrders({ symbol: BACKPACK_TRADING_PAIR });
     if (GetOpenOrders.length > 0) {
-        let CancelOpenOrders = await client.CancelOpenOrders({ symbol: "SOL_USDC" });
+        let CancelOpenOrders = await client.CancelOpenOrders({ symbol: BACKPACK_TRADING_PAIR });
         console.log(getNowFormatDate(), "取消所有挂单,开始执行Maker单");
     } else {
         console.log(getNowFormatDate(), "无挂单,开始执行Maker单");
@@ -120,8 +142,9 @@ const buy_bp = async (client) => {
         let bestPrices = await getorderbook(client);
         let buyprice = bestPrices.highestBidPrice;
         let amount = (userbalance.USDC.available - 2).toFixed(2)
-        let quant = ((userbalance.USDC.available - 2) / buyprice).toFixed(2)
-        console.log(getNowFormatDate(), `Maker Only买入挂单: 金额：${amount.toString()}USDC, 价格： ${buyprice}, sol数量: ${quant}`);
+        // let quant = ((userbalance.USDC.available - 2) / buyprice).toFixed(ROUND)
+        let quant = truncate((userbalance.USDC.available - 2) / buyprice, ROUND)
+        console.log(getNowFormatDate(), `Maker Only买入挂单: 交易对：${BACKPACK_TRADING_PAIR}, 金额：${amount.toString()}USDC, 价格： ${buyprice}, 数量: ${quant}`);
         let quantitys = quant.toString();
         let orderResultBid = await client.ExecuteOrder({
             orderType: "Limit",
@@ -129,7 +152,7 @@ const buy_bp = async (client) => {
             price: buyprice.toString(),
             quantity: quantitys,
             side: "Bid", //买
-            symbol: "SOL_USDC",
+            symbol: BACKPACK_TRADING_PAIR,
             timeInForce: "GTC"
         })
 
@@ -154,13 +177,13 @@ const buy_bp = async (client) => {
         }
         if (order_status == "new"){
             try {
-                await client.CancelOpenOrders({ symbol: "SOL_USDC" });
+                await client.CancelOpenOrders({ symbol: BACKPACK_TRADING_PAIR });
                 console.log(getNowFormatDate(), "未成交，取消订单并重新挂单");
             } catch (error) {
                 console.error(getNowFormatDate(), "取消订单失败:", error.message);
             }
         }else if(order_status == "Filled"){
-            await sell_bn("SOLUSDC", quant)
+            await sell_bn(BINANCE_TRADING_PAIR, quant)
         }
     
     }
@@ -169,10 +192,11 @@ const buy_bp = async (client) => {
 
 
 const sell_bp = async (client) => {
+    
     // 取消所有未完成的卖单
-    let GetOpenOrders = await client.GetOpenOrders({ symbol: "SOL_USDC" });
+    let GetOpenOrders = await client.GetOpenOrders({ symbol: BACKPACK_TRADING_PAIR });
     if (GetOpenOrders.length > 0) {
-        await client.CancelOpenOrders({ symbol: "SOL_USDC" });
+        await client.CancelOpenOrders({ symbol: BACKPACK_TRADING_PAIR });
         console.log(getNowFormatDate(), "取消所有挂单,开始执行Maker单");
     } else {
         console.log(getNowFormatDate(), "无挂单,开始执行Maker单");
@@ -186,9 +210,11 @@ const sell_bp = async (client) => {
     while (order_status != "Filled") {
         let bestPrices = await getorderbook(client);
         let sellprice = bestPrices.lowestAskPrice;
-        let quant = (userbalance.SOL.available-0.01).toFixed(2);
+        // let quant = (userbalance[SYMBOL].available).toFixed(ROUND_BP);
+        let quant = truncate((userbalance[SYMBOL].available), ROUND_BP);
+        let quant_BN = (userbalance[SYMBOL].available).toFixed(ROUND_BN)
         let quantitys = quant.toString();
-        console.log(getNowFormatDate(), `Maker Only卖出挂单: 数量：${quantitys} SOL, 价格： ${sellprice}, sol数量: ${quant}`);
+        console.log(getNowFormatDate(), `Maker Only卖出挂单: 交易对：${BACKPACK_TRADING_PAIR}, 价格： ${sellprice}, 数量: ${quant}`);
 
         let orderResultAsk = await client.ExecuteOrder({
             orderType: "Limit",
@@ -196,7 +222,7 @@ const sell_bp = async (client) => {
             price: sellprice.toString(),
             quantity: quantitys,
             side: "Ask", // 卖
-            symbol: "SOL_USDC",
+            symbol: BACKPACK_TRADING_PAIR,
             timeInForce: "GTC"
         })
 
@@ -221,13 +247,13 @@ const sell_bp = async (client) => {
         }
         if (order_status == "new") {
             try {
-                await client.CancelOpenOrders({ symbol: "SOL_USDC" });
+                await client.CancelOpenOrders({ symbol: BACKPACK_TRADING_PAIR });
                 console.log(getNowFormatDate(), "未成交，取消订单并重新挂单");
             } catch (error) {
                 console.error(getNowFormatDate(), "取消订单失败:", error.message);
             }
         }else if(order_status == "Filled"){
-            await buy_bn("SOLUSDC", quant)
+            await buy_bn(BINANCE_TRADING_PAIR, quant_BN)
         }
     }
 }

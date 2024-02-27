@@ -4,11 +4,11 @@ const config = require('./config/runner.json');
 const binanceApiKey = config.binance.apiKey;
 const binanceApiSecret = config.binance.apiSecret;
 const binanceProxy = config.binance.proxy;
+const BINANCE_TRADING_PAIR = config.tradingPairs.binance;
 
 const { SocksProxyAgent } = require('socks-proxy-agent');
 const { HttpsProxyAgent }= require('https-proxy-agent');
 let agent;
-
 
 if (binanceProxy.startsWith('socks5://')) {
     agent = new SocksProxyAgent(binanceProxy);
@@ -34,12 +34,12 @@ async function sell_bn(symbol, quant) {
         console.log("币安持仓信息：");
 
         const positionResponse = await umFuturesClient.getPositionInformationV2();
-        const solPosition = positionResponse.data.filter(pos => pos.symbol === 'SOLUSDC');
+        const solPosition = positionResponse.data.filter(pos => pos.symbol === BINANCE_TRADING_PAIR);
         if (solPosition.length > 0) {
             const position = solPosition[0];
             console.log(`交易对: ${position.symbol}, 持仓数量: ${position.positionAmt}, 入场价格: ${position.entryPrice}`);
         } else {
-            console.log('No position found for SOLUSDC');
+            console.log(`No position found for ${BINANCE_TRADING_PAIR}`);
         }
     } catch (error) {
         console.error(error);
