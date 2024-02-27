@@ -9,7 +9,10 @@
       "apiSecret": "",
       "proxy": ""
     }
-
+    "tradingPairs": {
+        "backpack": "SOL_USDC",
+        "binance": "SOLUSDC"
+  }
 }
 
 
