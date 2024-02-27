@@ -142,7 +142,7 @@ const buy_bp = async (client) => {
         let buyprice = bestPrices.highestBidPrice;
         let amount = (userbalance.USDC.available - 2).toFixed(2)
         // let quant = ((userbalance.USDC.available - 2) / buyprice).toFixed(ROUND)
-        let quant = truncate((userbalance.USDC.available - 2) / buyprice, ROUND)
+        let quant = truncate((userbalance.USDC.available - 2) / buyprice, ROUND_BP)
         console.log(getNowFormatDate(), `Maker Only买入挂单: 交易对：${BACKPACK_TRADING_PAIR}, 金额：${amount.toString()}USDC, 价格： ${buyprice}, 数量: ${quant}`);
         let quantitys = quant.toString();
         let orderResultBid = await client.ExecuteOrder({
