@@ -39,7 +39,7 @@ main.js 里84行`await delay(10000);`, 决定了持仓时间，默认10秒只是
 `node main.js`
 
 
-后续会更新方案2，两个backpack分别持有sol和usdc, 一个交易所买入sol,另一个卖出sol，同时
+后续会更新方案2，两个backpack分别持有sol和usdc, 一个交易所买入sol,另一个卖出sol，重复交易，同时
 在币安开空持仓的sol的数量，但是有被女巫风险
 
 有问题可以联系twitter:https://twitter.com/Kiki29184101
