@@ -143,6 +143,7 @@ const buy_bp = async (client) => {
         let amount = (userbalance.USDC.available - 2).toFixed(2)
         // let quant = ((userbalance.USDC.available - 2) / buyprice).toFixed(ROUND)
         let quant = truncate((userbalance.USDC.available - 2) / buyprice, ROUND_BP)
+        let quant_BN = truncate(quant, ROUND_BN)
         console.log(getNowFormatDate(), `Maker Only买入挂单: 交易对：${BACKPACK_TRADING_PAIR}, 金额：${amount.toString()}USDC, 价格： ${buyprice}, 数量: ${quant}`);
         let quantitys = quant.toString();
         let orderResultBid = await client.ExecuteOrder({
@@ -182,7 +183,7 @@ const buy_bp = async (client) => {
                 console.error(getNowFormatDate(), "取消订单失败:", error.message);
             }
         }else if(order_status == "Filled"){
-            await sell_bn(BINANCE_TRADING_PAIR, quant)
+            await sell_bn(BINANCE_TRADING_PAIR, quant_BN)
         }
     
     }
@@ -211,7 +212,8 @@ const sell_bp = async (client) => {
         let sellprice = bestPrices.lowestAskPrice;
         // let quant = (userbalance[SYMBOL].available).toFixed(ROUND_BP);
         let quant = truncate((userbalance[SYMBOL].available), ROUND_BP);
-        let quant_BN = (userbalance[SYMBOL].available).toFixed(ROUND_BN)
+        // let quant_BN = (userbalance[SYMBOL].available).toFixed(ROUND_BN);
+        let quant_BN = truncate(userbalance[SYMBOL].available, ROUND_BN);
         let quantitys = quant.toString();
         console.log(getNowFormatDate(), `Maker Only卖出挂单: 交易对：${BACKPACK_TRADING_PAIR}, 价格： ${sellprice}, 数量: ${quant}`);
 
