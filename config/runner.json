@@ -11,7 +11,7 @@
   },
   "tradingPairs": {
     "backpack": "SOL_USDC",
-    "binance": "SOLUSDT"
+    "binance": "SOLUSDC"
   }
 }
 
