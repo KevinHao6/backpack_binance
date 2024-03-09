@@ -4,15 +4,8 @@
     "apiSecret": "",
     "proxy": ""
   },
-  "backpack": {
-    "apiKey": "",
-    "apiSecret": "",
-    "proxy": ""
-  },
   "tradingPairs": {
-    "backpack": "SOL_USDC",
-    "binance": "SOLUSDC"
+    "backpack": "PYTH_USDC",
+    "binance": "PYTHUSDT"
   }
 }
-
-
